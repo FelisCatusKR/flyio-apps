@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-flyio-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   discover:
     name: Discover Apps
