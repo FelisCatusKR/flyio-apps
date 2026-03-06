@@ -19,8 +19,13 @@ jobs:
       - name: Find apps with fly.toml
         id: find-apps
         run: |
-          apps=$(find . -name "fly.toml" -not -path "./.git/*" | xargs -r -I{} dirname {} | sed 's|^\./||' | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          apps=$(find . -name 'fly.toml' -not -path './.git/*' -print0 \
+            | xargs -0 -r -I{} dirname "{}" \
+            | sed 's|^\./||' \
+            | sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          printf 'apps=%s\n' "$apps" >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Deploy ${{ matrix.app }}
